@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: klinik-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - klinik-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: klinik-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - klinik-network
+
+  user-service:
+    build: ./user-service
+    container_name: klinik-user-service
+    ports:
+      - "8001:8000"
+    depends_on:
+      - mysql
+    networks:
+      - klinik-network
+
+  treatment-service:
+    build: ./treatment-service
+    container_name: klinik-treatment-service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - mysql
+    networks:
+      - klinik-network
+
+  booking-service:
+    build: ./booking-service
+    container_name: klinik-booking-service
+    ports:
+      - "8003:8000"
+    depends_on:
+      - mysql
+      - rabbitmq
+    networks:
+      - klinik-network
+
+  notification-service:
+    build: ./notification-service
+    container_name: klinik-notification-service
+    ports:
+      - "8004:8000"
+    depends_on:
+      - rabbitmq
+    networks:
+      - klinik-network
+
+  hasura:
+    image: hasura/graphql-engine:v2.36.0
+    container_name: klinik-hasura
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: mysql://root:root@mysql:3306/treatment_service_db
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecret
+    networks:
+      - klinik-network
+
+networks:
+  klinik-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
