@@ -31,8 +31,12 @@ pipeline {
                     script {
                         def services = ['user-service', 'booking-service', 'treatment-service', 'notification-service']
                         for (s in services) {
-                            bat "docker push %DOCKERHUB_USER%/klinik-${s}:%BUILD_NUMBER%"
-                            bat "docker push %DOCKERHUB_USER%/klinik-${s}:latest"
+                            retry(3) {
+                                bat "docker push %DOCKERHUB_USER%/klinik-${s}:%BUILD_NUMBER%"
+                            }
+                            retry(3) {
+                                bat "docker push %DOCKERHUB_USER%/klinik-${s}:latest"
+                            }
                         }
                     }
                 }
