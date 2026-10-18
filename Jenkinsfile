@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_USER       = 'USERNAME_DOCKERHUB_LU'
+        DOCKERHUB_USER       = 'lovielova'
         REGISTRY_CREDENTIALS = 'dockerhub-credentials'
     }
     stages {
