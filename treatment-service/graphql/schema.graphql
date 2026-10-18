@@ -1,0 +1,33 @@
+type Query {
+    treatments: [Treatment!]! @all
+    treatment(id: ID! @eq): Treatment @find
+}
+
+type Mutation {
+    createTreatment(
+        name: String!
+        description: String
+        price: Float!
+        duration_minutes: Int!
+    ): Treatment @create
+
+    updateTreatment(
+        id: ID!
+        name: String
+        description: String
+        price: Float
+        duration_minutes: Int
+    ): Treatment @update
+
+    deleteTreatment(id: ID! @eq): Treatment @delete
+}
+
+type Treatment {
+    id: ID!
+    name: String!
+    description: String
+    price: Float!
+    duration_minutes: Int!
+    created_at: String
+    updated_at: String
+}
